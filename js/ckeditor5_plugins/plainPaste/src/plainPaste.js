@@ -1,5 +1,5 @@
 import { Plugin } from 'ckeditor5/src/core';
-import plainTextToHtml from '@ckeditor/ckeditor5-clipboard/src/utils/plaintexttohtml';
+import sanitizeHtml from 'sanitize-html';
 
 export default class PlainPaste extends Plugin {
 
@@ -24,8 +24,36 @@ export default class PlainPaste extends Plugin {
 
     editingView.document.on('clipboardInput', (evt, data) => {
       const dataTransfer = data.dataTransfer;
-      let content = plainTextToHtml(dataTransfer.getData('text/plain'));
-      data.content = this.editor.data.htmlProcessor.toView(content);
+      const cleanHtml = sanitizeHtml(dataTransfer.getData('text/html'), {
+        allowedTags: [
+          'p',
+          'a',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'ul',
+          'ol',
+          'li',
+          'table',
+          'thead',
+          'tbody',
+          'th',
+          'tr',
+          'td',
+          'b',
+          'i',
+          'strong',
+          'em',
+          'dl',
+          'dt',
+          'dd',
+          'blockquote',
+          'code',
+        ],
+        allowedAttributes: { a: ['href'] },
+      });
+      data.content = this.editor.data.htmlProcessor.toView(cleanHtml);
     });
   }
 
