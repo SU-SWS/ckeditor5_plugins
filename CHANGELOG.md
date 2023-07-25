@@ -1,5 +1,11 @@
 # CKEditor 5 Plugins
 
+1.0.2
+--------------------------------------------------------------------------------
+_Release Date: 2023-07-25_
+
+- Refactor paste event to use the clipboard pipeline for google and word docs.
+
 1.0.1
 --------------------------------------------------------------------------------
 _Release Date: 2023-07-25_
