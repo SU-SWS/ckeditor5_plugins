@@ -46,6 +46,8 @@ export default class PlainPaste extends Plugin {
           'strong',
           'em',
           'dl',
+          'dt',
+          'dd',
           'blockquote',
           'code',
         ],
