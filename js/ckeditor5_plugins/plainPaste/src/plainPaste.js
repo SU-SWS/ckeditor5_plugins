@@ -24,9 +24,7 @@ export default class PlainPaste extends Plugin {
 
     editingView.document.on('clipboardInput', (evt, data) => {
       const dataTransfer = data.dataTransfer;
-      const html = dataTransfer.getData('text/html');
-
-      const cleanHtml = sanitizeHtml(html, {
+      const cleanHtml = sanitizeHtml(dataTransfer.getData('text/html'), {
         allowedTags: [
           'p',
           'a',
@@ -43,9 +41,16 @@ export default class PlainPaste extends Plugin {
           'th',
           'tr',
           'td',
+          'b',
+          'i',
+          'strong',
+          'em',
+          'dl',
+          'blockquote',
+          'code',
         ],
-        allowedAttributes: {a: ['href']}
-      })
+        allowedAttributes: { a: ['href'] },
+      });
       data.content = this.editor.data.htmlProcessor.toView(cleanHtml);
     });
   }
