@@ -6,9 +6,13 @@ concurrency:
 jobs:
   phpunit:
     name: PHPUnit Coverage Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: [ 8.3, 8.4, 8.5 ]
     runs-on: ubuntu-latest
     container:
-      image: pookmish/drupal8ci:latest
+      image: pookmish/drupal8ci:php${{ matrix.php_version }}
     services:
       mysql:
         image: mysql:8.0
@@ -21,7 +25,7 @@ jobs:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           path: project
       - name: Build project
@@ -31,16 +35,20 @@ jobs:
           composer global require su-sws/stanford-caravan:10.x-dev
           ~/.config/composer/vendor/bin/sws-caravan phpunit /var/www/html --extension-dir=$GITHUB_WORKSPACE/project --with-coverage
       - name: Save Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: unit-tests-results
           path: /var/www/html/artifacts
   phpunit_d11:
     name: PHPUnit Coverage Tests Drupal 11
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: [ 8.3, 8.4, 8.5 ]
     runs-on: ubuntu-latest
     container:
-      image: pookmish/drupal8ci:php8.3
+      image: pookmish/drupal8ci:php${{ matrix.php_version }}
     services:
       mysql:
         image: mysql:8.0
@@ -53,7 +61,7 @@ jobs:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           path: project
       - name: Build project
@@ -63,22 +71,26 @@ jobs:
           composer global require su-sws/stanford-caravan:11.x-dev
           ~/.config/composer/vendor/bin/sws-caravan phpunit /var/www/html --extension-dir=$GITHUB_WORKSPACE/project --with-coverage
       - name: Save Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: unit-tests-results
           path: /var/www/html/artifacts
   acceptance:
     name: Codeception Acceptance Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: [ 8.3, 8.4, 8.5 ]
     runs-on: ubuntu-latest
+    container:
+      image: pookmish/drupal8ci:php${{ matrix.php_version }}
+      options: '--network-alias drupal8ci'
     env:
       DRUPAL_DATABASE_NAME: drupal
       DRUPAL_DATABASE_USERNAME: drupal
       DRUPAL_DATABASE_PASSWORD: drupal
       DRUPAL_DATABASE_HOST: mysql
-    container:
-      image: pookmish/drupal8ci:php8.3
-      options: '--network-alias drupal8ci'
     services:
       mysql:
         image: mysql:8.0
@@ -91,7 +103,7 @@ jobs:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           path: project
       - name: Run tests
@@ -99,22 +111,26 @@ jobs:
           composer global require su-sws/stanford-caravan:11.x-dev
           ~/.config/composer/vendor/bin/sws-caravan codeception /var/www/html --extension-dir=$GITHUB_WORKSPACE/project --suites=acceptance
       - name: Save Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: acceptance-tests-results
           path: /var/www/html/artifacts
   functional:
     name: Codeception Functional Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: [ 8.3, 8.4, 8.5 ]
     runs-on: ubuntu-latest
+    container:
+      image: pookmish/drupal8ci:php${{ matrix.php_version }}
+      options: '--network-alias=drupal8ci'
     env:
       DRUPAL_DATABASE_NAME: drupal
       DRUPAL_DATABASE_USERNAME: drupal
       DRUPAL_DATABASE_PASSWORD: drupal
       DRUPAL_DATABASE_HOST: mysql
-    container:
-      image: pookmish/drupal8ci:php8.3
-      options: '--network-alias=drupal8ci'
     services:
       selenium:
         image: selenium/standalone-chrome
@@ -130,7 +146,7 @@ jobs:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           path: project
       - name: Run tests
@@ -138,7 +154,7 @@ jobs:
           composer global require su-sws/stanford-caravan:11.x-dev
           ~/.config/composer/vendor/bin/sws-caravan codeception /var/www/html --extension-dir=$GITHUB_WORKSPACE/project --suites=functional
       - name: Save Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: functional-tests-results
